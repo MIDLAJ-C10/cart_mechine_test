@@ -1,50 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pokak/core/color_constant.dart';
+import 'package:pokak/core/constants/color_constant.dart';
 import 'package:pokak/main.dart';
 
 import '../controller/product_controlelr.dart';
 
-class ProductDetailsScreen extends StatefulWidget {
+class ProductDetailsScreen extends StatelessWidget {
   final int productId;
-  const ProductDetailsScreen({super.key, required this.productId});
-
-  @override
-  _ProductDetailsScreenState createState() => _ProductDetailsScreenState();
-}
-
-class _ProductDetailsScreenState extends State<ProductDetailsScreen>
-    with TickerProviderStateMixin {
   final ProductController controller = Get.find<ProductController>();
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  int _selectedImageIndex = 0;
-  int _quantity = 1;
-  bool _isFavorite = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-
-    // Delay API call until after widget is built
+  ProductDetailsScreen({super.key, required this.productId}) {
+    // Load data once when screen is created
     Future.microtask(() {
-      controller.loadProductDetails(widget.productId);
-      _animationController.forward();
+      controller.loadProductDetails(productId);
     });
   }
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,8 +35,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
           return _buildNotFoundState();
         }
 
-        return FadeTransition(
-          opacity: _fadeAnimation,
+        return SafeArea(
           child: CustomScrollView(
             slivers: [
               _buildAppBar(context, product),
@@ -113,23 +83,22 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
             color: ColorConst.highliteShimmerDark.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: IconButton(
-            icon: Icon(
-              _isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-              color: _isFavorite ? Colors.red : null,
-              size: 20,
+          child: Obx(
+            () => IconButton(
+              icon: Icon(
+                controller.isFavorite.value
+                    ? Icons.favorite
+                    : Icons.favorite_border,
+                color: controller.isFavorite.value ? Colors.red : null,
+              ),
+              onPressed: controller.toggleFavorite,
             ),
-            onPressed: () {
-              setState(() {
-                _isFavorite = !_isFavorite;
-              });
-            },
           ),
         ),
         Container(
           margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color:  ColorConst.highliteShimmerDark.withOpacity(0.1),
+            color: ColorConst.highliteShimmerDark.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: IconButton(
@@ -146,7 +115,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
 
   Widget _buildImageSection(BuildContext context, dynamic product) {
     return Container(
-      height: width*0.7,
+      height: width * 0.7,
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -175,10 +144,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
                 },
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceVariant.withOpacity(0.5),
                     child: Icon(
                       Icons.image_not_supported_rounded,
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.3),
                       size: 64,
                     ),
                   );
@@ -196,11 +169,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
                 color: Colors.black.withOpacity(0.6),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
-                Icons.zoom_in_rounded,
-                color: Colors.white,
-                size: 16,
-              ),
+              child: Icon(Icons.zoom_in_rounded, color: Colors.white, size: 16),
             ),
           ),
         ],
@@ -237,25 +206,25 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
             child: Text(
               product.category.toString().toUpperCase(),
               style: TextStyle(
-                fontSize: width*0.035,
+                fontSize: width * 0.035,
                 fontWeight: FontWeight.w600,
                 color: ColorConst.primaryColor,
                 letterSpacing: 0.5,
               ),
             ),
           ),
-          SizedBox(height: width*0.03),
+          SizedBox(height: width * 0.03),
 
           // Product Title
           Text(
             product.title,
-            style:TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w700,
-              fontSize: width*0.065,
+              fontSize: width * 0.065,
               height: 1.2,
             ),
           ),
-          SizedBox(height: width*0.03),
+          SizedBox(height: width * 0.03),
 
           // Rating Row
           Row(
@@ -275,25 +244,25 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
                       product.rate.toString(),
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: width*0.04,
+                        fontSize: width * 0.04,
                         color: Colors.amber[700],
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(width: width*0.03),
+              SizedBox(width: width * 0.03),
               Text(
                 "(${product.count} reviews)",
                 style: TextStyle(
                   color: ColorConst.black.withOpacity(0.6),
-                  fontSize: width*0.04,
+                  fontSize: width * 0.04,
                 ),
               ),
               const Spacer(),
               Icon(
                 Icons.local_shipping_outlined,
-                size: width*0.045,
+                size: width * 0.045,
                 color: ColorConst.primaryColor,
               ),
               const SizedBox(width: 4),
@@ -301,13 +270,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
                 "Free Delivery",
                 style: TextStyle(
                   color: ColorConst.primaryColor,
-                  fontSize: width*0.035,
+                  fontSize: width * 0.035,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ],
           ),
-          SizedBox(height: width*0.04),
+          SizedBox(height: width * 0.04),
 
           // Price Row
           Row(
@@ -316,11 +285,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
                 "\$${product.price}",
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
-                  fontSize: width*0.06,
-                  color:ColorConst.primaryColor,
+                  fontSize: width * 0.06,
+                  color: ColorConst.primaryColor,
                 ),
               ),
-              SizedBox(width: width*0.02),
+              SizedBox(width: width * 0.02),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
@@ -330,7 +299,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
                 child: Text(
                   "20% OFF",
                   style: TextStyle(
-                    fontSize: width*0.03,
+                    fontSize: width * 0.03,
                     fontWeight: FontWeight.w600,
                     color: Colors.green[700],
                   ),
@@ -351,42 +320,42 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
         color: ColorConst.highliteShimmerDark.withOpacity(0.0),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Row(
+      child:Obx(() =>   Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            onPressed: _quantity > 1 ? () => setState(() => _quantity--) : null,
-            icon: Icon(Icons.remove_rounded, size: 18),
+            onPressed: controller.quantity.value > 1
+                ? controller.decreaseQuantity
+                : null,
+            icon: Icon(Icons.remove_rounded, size: width*0.07),
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: EdgeInsets.symmetric(horizontal: width*0.04),
             child: Text(
-              _quantity.toString(),
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
+              controller.quantity.value.toString(),
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: width*0.045),
             ),
           ),
           IconButton(
-            onPressed: () => setState(() => _quantity++),
-            icon: Icon(Icons.add_rounded, size: 18),
+            onPressed: controller.increaseQuantity,
+            icon: Icon(Icons.add_rounded, size: width*0.07),
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
           ),
         ],
-      ),
+      ),)
+
     );
   }
 
   Widget _buildDescription(BuildContext context, dynamic product) {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.symmetric(horizontal: width*0.05),
-      padding:  EdgeInsets.all(width*0.05),
+      margin: EdgeInsets.symmetric(horizontal: width * 0.05),
+      padding: EdgeInsets.all(width * 0.05),
       decoration: BoxDecoration(
         color: ColorConst.highliteShimmerDark.withOpacity(0.0),
-        borderRadius: BorderRadius.circular(width*0.03),
+        borderRadius: BorderRadius.circular(width * 0.03),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -400,16 +369,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
         children: [
           Text(
             "Description",
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
           ),
-          SizedBox(height: width*0.03),
+          SizedBox(height: width * 0.03),
           Text(
             product.description,
             style: TextStyle(
               height: 1.6,
-              fontSize: width*0.04,
+              fontSize: width * 0.04,
               color: ColorConst.black.withOpacity(0.8),
             ),
           ),
@@ -420,7 +389,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
 
   Widget _buildBottomSection(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(width*0.06),
       child: Row(
         children: [
           Expanded(
@@ -428,38 +397,39 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
               onPressed: () {
                 _showAddedToCartSnackbar();
               },
-              icon: Icon(Icons.shopping_cart_outlined,color: ColorConst.primaryColor,),
-              label: Text("Add to Cart",style: TextStyle(
+              icon: Icon(
+                Icons.shopping_cart_outlined,
                 color: ColorConst.primaryColor,
-                fontSize: width*0.03
-              ),),
+              ),
+              label: Text(
+                "Add to Cart",
+                style: TextStyle(
+                  color: ColorConst.primaryColor,
+                  fontSize: width * 0.04,
+                ),
+              ),
               style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: width*0.02),
+                padding: EdgeInsets.symmetric(vertical: width * 0.02),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                side: BorderSide(
-                  color: ColorConst.primaryColor,
-                  width: 2,
-                ),
+                side: BorderSide(color: ColorConst.primaryColor, width: 2),
               ),
             ),
           ),
-          SizedBox(width: width*0.02),
+          SizedBox(width: width * 0.02),
           Expanded(
             child: ElevatedButton.icon(
               onPressed: () {
                 // Buy now functionality
                 _showBuyNowDialog();
               },
-              icon: Icon(Icons.flash_on_rounded,color: ColorConst.white,),
-              label: Text("Buy Now",style: TextStyle(
-                fontSize: width*0.03,
-              ),),
+              icon: Icon(Icons.flash_on_rounded, color: ColorConst.white),
+              label: Text("Buy Now", style: TextStyle(fontSize: width * 0.04)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: ColorConst.primaryColor,
                 foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(vertical: width*0.02),
+                padding: EdgeInsets.symmetric(vertical: width * 0.02),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -486,7 +456,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
             "Loading product details...",
             style: TextStyle(
               color: ColorConst.black.withOpacity(0.6),
-              fontSize: width*0.03,
+              fontSize: width * 0.03,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -498,7 +468,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
   Widget _buildErrorState() {
     return Center(
       child: Padding(
-        padding:  EdgeInsets.all(width*0.03),
+        padding: EdgeInsets.all(width * 0.03),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -517,9 +487,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
             const SizedBox(height: 16),
             Text(
               "Oops! Something went wrong",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Text(
@@ -532,7 +500,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              onPressed: () => controller.loadProductDetails(widget.productId),
+              onPressed: () => controller.loadProductDetails(productId),
               icon: const Icon(Icons.refresh_rounded),
               label: const Text("Try Again"),
               style: ElevatedButton.styleFrom(
@@ -541,7 +509,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
             ),
           ],
@@ -563,16 +534,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
             ),
             child: Icon(
               Icons.search_off_rounded,
-              size: width*0.05,
+              size: width * 0.05,
               color: ColorConst.black.withOpacity(0.5),
             ),
           ),
           const SizedBox(height: 16),
           Text(
             "Product Not Found",
-            style:TextStyle(
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Text(
@@ -619,14 +588,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
   void _showBuyNowDialog() {
     Get.dialog(
       AlertDialog(
+        backgroundColor: ColorConst.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text("Proceed to Checkout"),
         content: Text("Ready to purchase this item?"),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: Text("Cancel"),
-          ),
+          TextButton(onPressed: () => Get.back(), child: Text("Cancel")),
           ElevatedButton(
             onPressed: () {
               Get.back();
@@ -634,7 +601,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
                 "Order Placed",
                 "Your order has been placed successfully!",
                 snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: Theme.of(context).colorScheme.primary,
+                backgroundColor: ColorConst.primaryColor,
                 colorText: Colors.white,
                 duration: const Duration(seconds: 3),
                 margin: const EdgeInsets.all(16),
@@ -642,7 +609,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: ColorConst.primaryColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),

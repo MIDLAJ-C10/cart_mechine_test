@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pokak/core/color_constant.dart';
+import 'package:pokak/core/constants/color_constant.dart';
 import 'package:pokak/features/home/screen/product_details.dart';
 import '../../../main.dart';
 import '../controller/product_controlelr.dart';
@@ -49,24 +49,33 @@ class _ProductListScreenState extends State<ProductListScreen> {
       backgroundColor: ColorConst.white,
       body: SafeArea(
         top: false,
-        child: CustomScrollView(
-          slivers: [
-            // Modern App Bar
-            _buildAppBar(context),
+        child: RefreshIndicator(
+          color: ColorConst.primaryColor,
+          onRefresh: () async {
+            await controller.loadProducts(); // Reload products
+          },
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              // Modern App Bar
+              _buildAppBar(context),
 
-            // Banner Carousel
-            _buildBannerCarousel(context),
+              // Banner Carousel
+              _buildBannerCarousel(context),
 
-            // Category Filter
-            _buildCategoryFilter(context),
+              // Category Filter
+              _buildCategoryFilter(context),
 
-            // Product Grid
-            _buildProductGrid(context),
-          ],
+              // Product Grid
+              _buildProductGrid(context),
+            ],
+          ),
         ),
       ),
     );
   }
+
+
 
   Widget _buildAppBar(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -83,15 +92,22 @@ class _ProductListScreenState extends State<ProductListScreen> {
       centerTitle: false,
       flexibleSpace: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-          // This will let us detect if the app bar is collapsed
-          final bool isCollapsed = constraints.maxHeight <= height * 0.12;
+
+          final bool isCollapsed = constraints.maxHeight <= height * 0.17;
 
           return FlexibleSpaceBar(
             centerTitle: true,
-            titlePadding: EdgeInsets.symmetric(horizontal: width * 0.04, vertical: 8),
-            title: isCollapsed
-                ? _buildSearchBar(width, height) // Show search bar in collapsed state
-                : null,
+            titlePadding: EdgeInsets.symmetric(
+              horizontal: width * 0.04,
+              vertical: 8,
+            ),
+            title:
+                isCollapsed
+                    ? _buildSearchBar(
+                      width,
+                      height,
+                    )
+                    : null,
             background: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -143,7 +159,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                 padding: EdgeInsets.all(width * 0.02),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(width * 0.02),
+                                  borderRadius: BorderRadius.circular(
+                                    width * 0.02,
+                                  ),
                                 ),
                                 child: Icon(
                                   Icons.notifications_outlined,
@@ -165,8 +183,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
                           ),
                         ],
                       ),
+
                       SizedBox(height: height * 0.02),
-                      _buildSearchBar(width, height), // Search bar in expanded state
+                      _buildSearchBar(
+                        width,
+                        height,
+                      ),
                     ],
                   ),
                 ),
@@ -204,7 +226,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
     );
   }
 
-
   Widget _buildBannerCarousel(BuildContext context) {
     return SliverToBoxAdapter(
       child: Container(
@@ -212,7 +233,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
         child: Column(
           children: [
             Container(
-              height: width*0.4,
+              height: width * 0.4,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
@@ -224,7 +245,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(width*0.02),
+                borderRadius: BorderRadius.circular(width * 0.02),
                 child: PageView(
                   controller: _bannerController,
                   onPageChanged: (index) {
@@ -258,21 +279,22 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 ),
               ),
             ),
-            SizedBox(height: width*0.03),
+            SizedBox(height: width * 0.03),
             // Banner Indicators
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 3,
-                    (index) => Container(
-                  width: width*0.02,
-                  height: width*0.02,
+                (index) => Container(
+                  width: width * 0.02,
+                  height: width * 0.02,
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _currentBannerIndex == index
-                        ? Colors.black87
-                        : Colors.grey,
+                    color:
+                        _currentBannerIndex == index
+                            ? Colors.black87
+                            : Colors.grey,
                   ),
                 ),
               ),
@@ -283,7 +305,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
     );
   }
 
-  Widget _buildBannerItem(BuildContext context, String title, String subtitle, Color color, IconData icon) {
+  Widget _buildBannerItem(
+    BuildContext context,
+    String title,
+    String subtitle,
+    Color color,
+    IconData icon,
+  ) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -293,7 +321,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
         ),
       ),
       child: Padding(
-        padding:  EdgeInsets.all(width*0.03),
+        padding: EdgeInsets.all(width * 0.03),
         child: Row(
           children: [
             Expanded(
@@ -305,36 +333,42 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     title,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: width*0.03,
+                      fontSize: width * 0.03,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  SizedBox(height: width*0.01),
+                  SizedBox(height: width * 0.02),
                   Text(
                     subtitle,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: width*0.04,
+                      fontSize: width * 0.04,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  SizedBox(height: width*0.01),
+                  SizedBox(height: width * 0.04),
                   SizedBox(
-                    height: width*0.06,
-                    width: width*0.2,
+                    height: width * 0.06,
+                    width: width * 0.2,
                     child: ElevatedButton(
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: color,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(width*0.03),
+                          borderRadius: BorderRadius.circular(width * 0.03),
                         ),
-                        padding:  EdgeInsets.symmetric(horizontal: width*0.02, vertical: width*0.01),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: width * 0.02,
+                          vertical: width * 0.01,
+                        ),
                       ),
                       child: Text(
                         "Shop Now",
-                        style: TextStyle(fontWeight: FontWeight.w600,fontSize: width*0.03),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: width * 0.03,
+                        ),
                       ),
                     ),
                   ),
@@ -343,7 +377,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             ),
             Icon(
               icon,
-              size: width*0.02,
+              size: width * 0.02,
               color: Colors.white.withOpacity(0.3),
             ),
           ],
@@ -356,10 +390,16 @@ class _ProductListScreenState extends State<ProductListScreen> {
     return SliverToBoxAdapter(
       child: Obx(() {
         // Extract unique categories from products
-        final categories = ['All', ...controller.products.map((p) => p.category.toString()).toSet()];
+        final categories = [
+          'All',
+          ...controller.products.map((p) => p.category.toString()).toSet(),
+        ];
 
         return Container(
-          margin: EdgeInsets.symmetric(horizontal: width*0.03, vertical: width*0.02),
+          margin: EdgeInsets.symmetric(
+            horizontal: width * 0.03,
+            vertical: width * 0.02,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -369,48 +409,55 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   "Categories",
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
-                    fontSize: width*0.03
+                    fontSize: width * 0.045,
                   ),
                 ),
               ),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: categories.map((category) {
-                    final isSelected = selectedCategory == category;
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedCategory = category;
-                        });
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 12),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? ColorConst.primaryColor
-                              : Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: isSelected
-                                ? ColorConst.primaryColor
-                                : Colors.grey.shade300,
+                  children:
+                      categories.map((category) {
+                        final isSelected = selectedCategory == category;
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedCategory = category;
+                            });
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(right: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color:
+                                  isSelected
+                                      ? ColorConst.primaryColor
+                                      : Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color:
+                                    isSelected
+                                        ? ColorConst.primaryColor
+                                        : Colors.grey.shade300,
+                              ),
+                            ),
+                            child: Text(
+                              category.toString().capitalizeFirst ?? category,
+                              style: TextStyle(
+                                color:
+                                    isSelected
+                                        ? Colors.white
+                                        : ColorConst.black,
+                                fontWeight: FontWeight.w600,
+                                fontSize: width * 0.034,
+                              ),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          category.toString().capitalizeFirst ?? category,
-                          style: TextStyle(
-                            color: isSelected
-                                ? Colors.white
-                                : ColorConst.black,
-                            fontWeight: FontWeight.w600,
-                            fontSize: width*0.03,
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                        );
+                      }).toList(),
                 ),
               ),
             ],
@@ -436,8 +483,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 Text(
                   "Loading amazing products...",
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                    fontSize: width*0.03,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.6),
+                    fontSize: width * 0.03,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -450,61 +499,66 @@ class _ProductListScreenState extends State<ProductListScreen> {
       if (controller.errorMessage.isNotEmpty) {
         return SliverFillRemaining(
           child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.errorContainer.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Icon(
-                    Icons.error_outline_rounded,
-                    size: 48,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  "Oops! Something went wrong",
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  controller.errorMessage.value,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                    fontSize: 14,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () => controller.loadProducts(),
-                  icon: const Icon(Icons.refresh_rounded),
-                  label: const Text("Try Again"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.errorContainer.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    child: Icon(
+                      Icons.error_outline_rounded,
+                      size: 48,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  Text(
+                    "Oops! Something went wrong",
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () => controller.loadProducts(),
+                    icon: const Icon(Icons.refresh_rounded,color: ColorConst.white,),
+                    label: const Text("Try Again"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ColorConst.primaryColor,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
       }
 
       // Filter products based on selected category
-      final filteredProducts = selectedCategory == 'All'
-          ? controller.products
-          : controller.products.where((product) => product.category.toString() == selectedCategory).toList();
+      final filteredProducts =
+          selectedCategory == 'All'
+              ? controller.products
+              : controller.products
+                  .where(
+                    (product) =>
+                        product.category.toString() == selectedCategory,
+                  )
+                  .toList();
 
       if (filteredProducts.isEmpty) {
         return SliverFillRemaining(
@@ -515,21 +569,25 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceVariant.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Icon(
                     Icons.shopping_bag_outlined,
                     size: 48,
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.5),
                   ),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   "No Products Found",
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -537,25 +595,37 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       ? "We couldn't find any products at the moment.\nTry refreshing or check back later."
                       : "No products found in '$selectedCategory' category.\nTry selecting a different category.",
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.6),
                     fontSize: 14,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
-                  onPressed: selectedCategory == 'All'
-                      ? () => controller.loadProducts()
-                      : () => setState(() => selectedCategory = 'All'),
-                  icon: Icon(selectedCategory == 'All' ? Icons.refresh_rounded : Icons.clear_all_rounded),
-                  label: Text(selectedCategory == 'All' ? "Refresh" : "Show All"),
+                  onPressed:
+                      selectedCategory == 'All'
+                          ? () => controller.loadProducts()
+                          : () => setState(() => selectedCategory = 'All'),
+                  icon: Icon(
+                    selectedCategory == 'All'
+                        ? Icons.refresh_rounded
+                        : Icons.clear_all_rounded,
+                  ),
+                  label: Text(
+                    selectedCategory == 'All' ? "Refresh" : "Show All",
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                   ),
                 ),
               ],
@@ -573,24 +643,20 @@ class _ProductListScreenState extends State<ProductListScreen> {
             mainAxisSpacing: 16,
             childAspectRatio: 0.75,
           ),
-          delegate: SliverChildBuilderDelegate(
-                (context, index) {
-              final product = filteredProducts[index];
-              return _buildProductCard(context, product, index);
-            },
-            childCount: filteredProducts.length,
-          ),
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final product = filteredProducts[index];
+            return _buildProductCard(context, product, index);
+          }, childCount: filteredProducts.length),
         ),
       );
-    }
-    );
+    });
   }
 
   Widget _buildProductCard(BuildContext context, dynamic product, int index) {
     return GestureDetector(
       onTap: () {
         Get.to(
-              () => ProductDetailsScreen(productId: product.id),
+          () => ProductDetailsScreen(productId: product.id),
           transition: Transition.fadeIn,
           duration: const Duration(milliseconds: 300),
         );
@@ -626,35 +692,43 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     color: ColorConst.black.withOpacity(0.1),
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(width*0.02),
+                    borderRadius: BorderRadius.circular(width * 0.02),
                     child: Stack(
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Image.network(
-                            product.image,
-                            width: width*0.2,
-                            height: width*0.2,
-                            fit: BoxFit.fill,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: ColorConst.primaryColor,
-                                ),
-                              );
-                            },
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: ColorConst.black.withOpacity(0.5),
-                                child: Icon(
-                                  Icons.image_not_supported_rounded,
-                                  color: ColorConst.black.withOpacity(0.3),
-                                  size: 32,
-                                ),
-                              );
-                            },
+                          child: Center(
+                            child: Container(
+                              child: Image.network(
+                                product.image,
+                                // width: width*0.2,
+                                // height: width*0.2,
+                                fit: BoxFit.fill,
+                                loadingBuilder: (
+                                  context,
+                                  child,
+                                  loadingProgress,
+                                ) {
+                                  if (loadingProgress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: ColorConst.primaryColor,
+                                    ),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    color: ColorConst.black.withOpacity(0.5),
+                                    child: Icon(
+                                      Icons.image_not_supported_rounded,
+                                      color: ColorConst.black.withOpacity(0.3),
+                                      size: width * 0.4,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
                           ),
                         ),
                         // Favorite Button
@@ -669,7 +743,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             ),
                             child: Icon(
                               Icons.favorite_border_rounded,
-                              size: 16,
+                              size: width * 0.04,
                               color: ColorConst.black.withOpacity(0.6),
                             ),
                           ),
@@ -679,7 +753,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
                           bottom: 8,
                           left: 8,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: ColorConst.primaryColor.withOpacity(0.9),
                               borderRadius: BorderRadius.circular(8),
@@ -688,7 +765,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                               product.category.toString().capitalizeFirst ?? '',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: width*0.024,
+                                fontSize: width * 0.024,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -704,7 +781,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding:  EdgeInsets.all(width*0.03),
+                  padding: EdgeInsets.all(width * 0.03),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -712,7 +789,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       Text(
                         product.title,
                         style: TextStyle(
-                          fontSize: width*0.03,
+                          fontSize: width * 0.03,
                           fontWeight: FontWeight.w600,
                           color: ColorConst.black,
                           height: 1.2,
@@ -720,37 +797,37 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: width*0.01),
+                      SizedBox(height: width * 0.01),
 
                       // Rating
                       Row(
                         children: [
                           Icon(
                             Icons.star_rounded,
-                            size: width*0.03,
+                            size: width * 0.03,
                             color: Colors.amber,
                           ),
-                          SizedBox(width: width*0.01),
+                          SizedBox(width: width * 0.01),
                           Text(
                             product.rate.toString(),
                             style: TextStyle(
-                              fontSize: width*0.025,
+                              fontSize: width * 0.025,
                               color: ColorConst.black.withOpacity(0.6),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          SizedBox(width: width*0.01),
+                          SizedBox(width: width * 0.01),
                           Text(
                             "(${product.count})",
                             style: TextStyle(
-                              fontSize: width*0.025,
+                              fontSize: width * 0.025,
                               color: ColorConst.black.withOpacity(0.4),
                             ),
                           ),
                         ],
                       ),
 
-                      SizedBox(width: width*0.03),
+                      SizedBox(width: width * 0.03),
 
                       // Price
                       Row(
@@ -758,7 +835,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                           Text(
                             "\$${product.price}",
                             style: TextStyle(
-                              fontSize: width*0.033,
+                              fontSize: width * 0.033,
                               fontWeight: FontWeight.w700,
                               color: ColorConst.primaryColor,
                             ),

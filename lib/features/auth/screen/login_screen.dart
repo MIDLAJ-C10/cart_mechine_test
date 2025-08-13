@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/color_constant.dart';
+import '../../../core/constants/color_constant.dart';
 import '../../../main.dart';
 import '../controller/auth_controller.dart';
 

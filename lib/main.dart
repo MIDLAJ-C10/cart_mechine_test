@@ -1,11 +1,7 @@
-import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:pokak/core/rote/app_pages.dart';
-import 'package:pokak/features/auth/screen/login_screen.dart';
-
 import 'features/auth/controller/auth_controller.dart';
 import 'features/auth/repository/auth_repository.dart';
 import 'features/auth/screen/splash.dart';
@@ -18,9 +14,12 @@ late double width;
 void main() {
   Get.put(AuthController(AuthRepository()));
   Get.put(ProductController(ProductRepository()));
-  runApp(DevicePreview(
-      enabled: !kReleaseMode,
-      builder:(context) =>  const MyApp(),));
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]).then((_) {
+    runApp(const MyApp());
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -33,10 +32,15 @@ class MyApp extends StatelessWidget {
     width=MediaQuery.of(context).size.width;
     return GetMaterialApp(
       useInheritedMediaQuery: true,
-      locale: DevicePreview.locale(context),
-      builder: DevicePreview.appBuilder,
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(1.0),
+          ),
+          child: child!,
+        );
+      },
       debugShowCheckedModeBanner: false,
-      getPages: AppPage.routes,
       title: 'Flutter Demo',
       home: SplashScreen(),
     );

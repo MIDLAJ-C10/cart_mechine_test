@@ -10,6 +10,11 @@ class ProductController extends GetxController {
   var isLoading = false.obs;
   var products = <Product>[].obs;
   var errorMessage = "".obs;
+  var selectedProduct = Rxn<Product>();
+
+  var quantity = 1.obs;
+  var isFavorite = false.obs;
+
 
   Future<void> loadProducts() async {
     try {
@@ -24,7 +29,6 @@ class ProductController extends GetxController {
   }
 
 
-  var selectedProduct = Rxn<Product>();
 
   Future<void> loadProductDetails(int id) async {
     try {
@@ -36,5 +40,14 @@ class ProductController extends GetxController {
       isLoading.value = false;
     }
   }
+
+
+
+  void toggleFavorite() => isFavorite.value = !isFavorite.value;
+  void increaseQuantity() => quantity.value++;
+  void decreaseQuantity() {
+    if (quantity.value > 1) quantity.value--;
+  }
+
 
 }

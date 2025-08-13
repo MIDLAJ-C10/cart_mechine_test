@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../models/auth_model.dart';
-import '../../../models/login_model.dart';
+import '../../../models/login_response_model.dart';
 
 class AuthRepository {
   final String baseUrl = "https://fakestoreapi.com";

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../core/color_constant.dart';
+import '../../../core/constants/color_constant.dart';
 import '../../../main.dart';
 import '../../home/screen/product_list.dart';
 import 'login_screen.dart';
