@@ -1,0 +1,5 @@
+package com.example.pokak
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity : FlutterActivity()
