@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:pokak/core/constants/api_constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../models/auth_model.dart';
 import '../../../models/login_response_model.dart';
@@ -9,7 +10,7 @@ class AuthRepository {
   final String baseUrl = "https://fakestoreapi.com";
 
   Future<LoginResponseModel> login(LoginRequestModel request) async {
-    final url = Uri.parse("$baseUrl/auth/login");
+    final url = Uri.parse(ApiConstant.loginUrl);
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},

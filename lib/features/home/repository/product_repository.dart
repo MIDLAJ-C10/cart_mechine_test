@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../../core/constants/api_constant.dart';
 import '../../../models/product_list_model.dart';
 
 class ProductRepository {
   final String baseUrl = "https://fakestoreapi.com";
 
   Future<List<Product>> fetchProducts() async {
-    final url = Uri.parse("$baseUrl/products");
+    final url = Uri.parse(ApiConstant.product_list);
     final response = await http.get(url);
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -19,7 +20,7 @@ class ProductRepository {
 
 
   Future<Product> fetchProductById(int id) async {
-    final url = Uri.parse("$baseUrl/products/$id");
+    final url = Uri.parse("${ApiConstant.product_list}/$id");
     final response = await http.get(url);
 
     if (response.statusCode >= 200 && response.statusCode < 300) {

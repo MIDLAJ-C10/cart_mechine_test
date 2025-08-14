@@ -8,8 +8,8 @@ import '../repository/auth_repository.dart';
 class AuthController extends GetxController {
   final AuthRepository repository;
   AuthController(this.repository);
-  final usernameController = TextEditingController(text: "mor_2314");
-  final passwordController = TextEditingController(text: "83r5^_");
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
   final isPasswordHidden = true.obs;
   final isLoading = false.obs;
 
