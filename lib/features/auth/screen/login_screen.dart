@@ -338,15 +338,6 @@ class Login extends StatelessWidget {
                           hintStyle: TextStyle(
                             color: ColorConst.black.withOpacity(0.5),
                           ),
-                          suffixIcon: GestureDetector(
-                            onTap: () {
-                              eye = !eye;
-                            },
-                            child: Icon(
-                              Icons.visibility_off,
-                              color: ColorConst.black,
-                            ),
-                          ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(color: ColorConst.black),
                           ),
